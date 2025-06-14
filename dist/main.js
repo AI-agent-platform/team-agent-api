@@ -8,7 +8,8 @@ async function bootstrap() {
         origin: 'http://localhost:3000',
         credentials: true,
     });
-    await app.listen(3020);
+    await app.listen(4001);
+    console.log('Server is running on port 4001');
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
