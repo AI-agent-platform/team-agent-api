@@ -1,0 +1,14 @@
+server:
+    port: 3000
+    hostedDomain: 'localhost:3000'
+    saltSecret: '$2b$10$eT54LKqpPRy4uZrsXrs8O.'
+
+db:
+    uri: 'mongodb+srv://buwa26889:fyp@cluster0.tmbq7fs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+
+aws:
+    region: 'ap-southeast-1'
+    accessKeyId: ''
+    secretAccessKey: ''
+    s3Bucket: ''
+
