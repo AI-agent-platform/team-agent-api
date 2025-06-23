@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import LakeraGuardConfig from 'src/config/lakeraConfig';
 
 
 @Injectable()
@@ -11,7 +12,7 @@ export class ChatService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 33797bdfd00edc90d3d952859d488150225d83bdc409f45704892b5a2538a6ad`,
+          'Authorization': `Bearer ${LakeraGuardConfig.apiKey}`,
         },
         body: JSON.stringify({
           messages: [
