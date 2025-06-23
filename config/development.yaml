@@ -4,7 +4,7 @@ server:
     saltSecret: '$2b$10$eT54LKqpPRy4uZrsXrs8O.'
 
 db:
-    uri: 'mongodb+srv://buwa26889:fyp@cluster0.tmbq7fs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+    uri: mongodb+srv://buwa26889:fyp@cluster0.tmbq7fs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 
 aws:
     region: 'ap-southeast-1'
@@ -12,3 +12,5 @@ aws:
     secretAccessKey: ''
     s3Bucket: ''
 
+lakeraGuard:
+    apiKey: '33797bdfd00edc90d3d952859d488150225d83bdc409f45704892b5a2538a6ad'
