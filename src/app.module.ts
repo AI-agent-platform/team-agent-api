@@ -7,7 +7,7 @@ import { ChatModule } from './api/chat/chat.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(dbConfig.uri),
+    MongooseModule.forRoot('mongodb+srv://buwa26889:fyp@cluster0.tmbq7fs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'),
     UserModule,
     AuthModule,
     ChatModule
