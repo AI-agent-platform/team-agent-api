@@ -29,6 +29,9 @@ export class User {
 
   @Prop({ select: false })
   passwordResetExpires?: Date;
+
+  @Prop({ default: false })
+  accessToken: string;
 }
 
 export type UserDocument = User & Document;

@@ -26,8 +26,8 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   async login(@Body() loginDto: LoginDto, @Request() req): Promise<any> {
     try {
+      return await this.authService.loginUser(req.user);
       //return req.user;
-      return await this.authService.generateJwtToken(req.user);
     } catch (error) {
       throw error;
     }
