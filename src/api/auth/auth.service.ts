@@ -32,9 +32,17 @@ export class AuthService {
     const payload = {
       email: user.email
     };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    return this.jwtService.sign(payload);
+  }
+
+  async loginUser (user: any){
+    console.log("🚀 ~ AuthService ~ loginUser ~ user:", user)
+    const accessToken = await this.generateJwtToken(user);
+    await this.UserService.findOneAndUpdate(
+      { email: user.email },
+      { accessToken } 
+    )
+    return {access_token: accessToken, user};
   }
 
   async getHashedPassword(password: string): Promise<any> {
