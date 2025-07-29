@@ -1,27 +1,20 @@
-import {
-  Controller,
-  Post,
-  Logger,
-  Request,
-  UseGuards,
-  Get,
-  Body,
-} from '@nestjs/common';
+import { Controller, Post, Body, Logger, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ChatMessageDto } from './dto/chat-message.dto';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('chat')
 export class ChatController {
   logger: Logger;
-  constructor(
-    private readonly chatService: ChatService,
-  ) {
+
+  constructor(private readonly chatService: ChatService) {
     this.logger = new Logger(ChatController.name);
   }
 
-   @Post()
-    async passMessageToLLM(@Body() ChatMessage: ChatMessageDto): Promise<any> {
-    return this.chatService.passMessageToLLM(ChatMessage.message);
+  @Post()
+  @UseInterceptors(AnyFilesInterceptor())
+  async passMessageToLLM(@Body() body: any , @UploadedFiles() file: File): Promise<any> {   
+    const message = body.message;    
+    return this.chatService.passMessageToLLM(message, file);
   }
-
 }
