@@ -16,14 +16,14 @@ export class Business extends Document {
   @Prop({ required: true })
   ownerUid: string;
 
-  @Prop({ type: [String], default: [] })
-  fields: string[];
+  // @Prop({ type: [String], default: [] })
+  // fields: string[];
 
-  @Prop({ type: [{ fileName: String, url: String }], default: [] })
-  files: { fileName: string; url: string }[];
+  // @Prop({ type: [{ fileName: String, url: String }], default: [] })
+  // files: { fileName: string; url: string }[];
 
-  @Prop({ type: Object, default: {} })
-  agentData: { adminUrl?: string; clientUrl?: string };
+  // @Prop({ type: Object, default: {} })
+  // agentData: { adminUrl?: string; clientUrl?: string };
 }
 
 export const BusinessSchema = SchemaFactory.createForClass(Business);

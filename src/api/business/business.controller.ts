@@ -37,24 +37,24 @@ export class BusinessController {
     return this.businessService.findByUser(uid);
   }
 
-  @Post("fields")
-  async selectFields(@Body() body: { businessId: string; fields: string[] }) {
-    return this.businessService.addFields(body.businessId, body.fields);
-  }
+//   @Post("fields")
+//   async selectFields(@Body() body: { businessId: string; fields: string[] }) {
+//     return this.businessService.addFields(body.businessId, body.fields);
+//   }
 
-  @Post("upload-file")
-  async uploadFile(
-    @Body() body: { businessId: string; fileName: string; url: string }
-  ) {
-    return this.businessService.addFile(
-      body.businessId,
-      body.fileName,
-      body.url
-    );
-  }
+//   @Post("upload-file")
+//   async uploadFile(
+//     @Body() body: { businessId: string; fileName: string; url: string }
+//   ) {
+//     return this.businessService.addFile(
+//       body.businessId,
+//       body.fileName,
+//       body.url
+//     );
+//   }
 
-  @Post("create-agents")
-  async createAgents(@Body() body: { businessId: string }) {
-    return this.businessService.createAgents(body.businessId);
-  }
+//   @Post("create-agents")
+//   async createAgents(@Body() body: { businessId: string }) {
+//     return this.businessService.createAgents(body.businessId);
+//   }
 }

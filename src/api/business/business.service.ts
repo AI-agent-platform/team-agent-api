@@ -25,40 +25,40 @@ export class BusinessService {
     return business;
   }
 
-  async addFields(businessId: string, fields: string[]) {
-    const business = await this.businessModel.findById(businessId);
-    if (!business) throw new NotFoundException("Business not found");
+//   async addFields(businessId: string, fields: string[]) {
+//     const business = await this.businessModel.findById(businessId);
+//     if (!business) throw new NotFoundException("Business not found");
 
-    business.fields.push(...fields.filter((f) => !business.fields.includes(f)));
-    await business.save();
-    return { message: "Fields added" };
-  }
+//     business.fields.push(...fields.filter((f) => !business.fields.includes(f)));
+//     await business.save();
+//     return { message: "Fields added" };
+//   }
 
-  async addFile(businessId: string, fileName: string, url: string) {
-    const business = await this.businessModel.findById(businessId);
-    if (!business) throw new NotFoundException("Business not found");
+//   async addFile(businessId: string, fileName: string, url: string) {
+//     const business = await this.businessModel.findById(businessId);
+//     if (!business) throw new NotFoundException("Business not found");
 
-    business.files.push({ fileName, url });
-    await business.save();
-    return { message: "File added" };
-  }
+//     business.files.push({ fileName, url });
+//     await business.save();
+//     return { message: "File added" };
+//   }
 
-  async createAgents(businessId: string) {
-    const business = await this.businessModel.findById(businessId);
-    if (!business) throw new NotFoundException("Business not found");
+//   async createAgents(businessId: string) {
+//     const business = await this.businessModel.findById(businessId);
+//     if (!business) throw new NotFoundException("Business not found");
 
-    // Example dummy agent URLs
-    business.agentData = {
-      adminUrl: `https://admin.example.com/${businessId}`,
-      clientUrl: `https://client.example.com/${businessId}`,
-    };
+//     // Example dummy agent URLs
+//     business.agentData = {
+//       adminUrl: `https://admin.example.com/${businessId}`,
+//       clientUrl: `https://client.example.com/${businessId}`,
+//     };
 
-    await business.save();
-    return {
-      adminUrl: business.agentData.adminUrl,
-      clientUrl: business.agentData.clientUrl,
-    };
-  }
+//     await business.save();
+//     return {
+//       adminUrl: business.agentData.adminUrl,
+//       clientUrl: business.agentData.clientUrl,
+//     };
+//   }
 
   async findByUser(uid: string) {
     const business = await this.businessModel.findOne({ userId: uid }).lean();   
@@ -71,12 +71,12 @@ export class BusinessService {
     if (business.name && business.contact && business.email && business.field) {
       completedSteps.push(0, 1, 2, 3);
     }
-    if (business.fields?.length) {
-      completedSteps.push(4);
-    }
-    if (business.files?.length) {
-      completedSteps.push(5);
-    }
+    // if (business.fields?.length) {
+    //   completedSteps.push(4);
+    // }
+    // if (business.files?.length) {
+    //   completedSteps.push(5);
+    // }
     // if (business.agentsCreated) {
     //   completedSteps.push(5);
     // }
