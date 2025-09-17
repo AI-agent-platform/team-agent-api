@@ -32,7 +32,7 @@ export class BusinessController {
   @Get("my-business")
   @UseGuards(JwtAuthGuard)
   async getMyBusiness(@Request() req) {
-    const uid = req.user?.uid;
+    const uid = req.user?._id;
 
     return this.businessService.findByUser(uid);
   }
