@@ -61,7 +61,9 @@ export class BusinessService {
 //   }
 
   async findByUser(uid: string) {
-    const business = await this.businessModel.findOne({ userId: uid }).lean();   
+    console.log("🚀 ~ BusinessService ~ findByUser ~ uid:", uid)
+    const business = await this.businessModel.findOne({ ownerUid: uid }).lean();   
+    console.log("🚀 ~ BusinessService ~ findByUser ~ business:", business)
 
     if (!business) {
       return { completedSteps: [], data: {} };
