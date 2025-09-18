@@ -14,3 +14,8 @@ aws:
 
 lakeraGuard:
     apiKey: '33797bdfd00edc90d3d952859d488150225d83bdc409f45704892b5a2538a6ad'
+
+google:
+    clientId: '209610564722-q116gajb7ei7spl3uglvfqigffk6jcv3.apps.googleusercontent.com'
+    clientSecret: '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'
+    redirectUri: 'http://localhost:4001/auth/google/callback'
