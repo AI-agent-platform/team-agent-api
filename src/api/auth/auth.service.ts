@@ -4,6 +4,8 @@ import {
   Inject,
   UnauthorizedException,
   NotFoundException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
@@ -70,11 +72,10 @@ export class AuthService {
   }
 
   // Register a new user
-  async register(newUser: CreateUserDto): Promise<any> {
-    console.log("🚀 ~ AuthService ~ register ~ newUser:", newUser)
+  async register(newUser: CreateUserDto): Promise<any> {   
     const query = { email: newUser.email };
     const isUser = await this.UserService.findOne(query);
-    if (isUser) throw { status: 409, message: 'User Already Exist' };
+    if (isUser) throw new HttpException('User Already Exist', HttpStatus.CONFLICT);
     const user = await this.UserService.create(newUser);
     return { message: 'Registration successful', user };
   }
