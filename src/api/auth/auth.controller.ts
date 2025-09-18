@@ -6,23 +6,34 @@ import {
   UseGuards,
   Get,
   Body,
-} from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './jwt-auth.gaurd';
-import { LocalAuthGuard } from './local-auth.gaurd';
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginDto } from './dto/login.dto';
+  Req,
+} from "@nestjs/common";
+import { AuthService } from "./auth.service";
+import { JwtAuthGuard } from "./jwt-auth.gaurd";
+import { LocalAuthGuard } from "./local-auth.gaurd";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { LoginDto } from "./dto/login.dto";
+import { AuthGuard } from "@nestjs/passport";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   logger: Logger;
-  constructor(
-    private readonly authService: AuthService,
-  ) {
+  constructor(private readonly authService: AuthService) {
     this.logger = new Logger(AuthController.name);
   }
 
-  @Post('login')
+  @Get("google/callback")
+  @UseGuards(AuthGuard("google"))
+  async googleAuthRedirect(@Req() req) {
+    return req.user;
+  }
+
+  @Post("google-login")
+  async googleLogin(@Body("token") token: string) {
+    return this.authService.loginWithGoogleToken(token);
+  }
+
+  @Post("login")
   @UseGuards(LocalAuthGuard)
   async login(@Body() loginDto: LoginDto, @Request() req): Promise<any> {
     try {
@@ -34,17 +45,17 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('viewProfile')
+  @Get("viewProfile")
   async getUser(@Request() req): Promise<any> {
     return req.user;
   }
 
-  @Post('register')
+  @Post("register")
   async register(@Body() createUserDto: CreateUserDto): Promise<any> {
     return this.authService.register(createUserDto);
   }
 
-  @Post('refresh')
+  @Post("refresh")
   async refresh(@Request() req): Promise<any> {
     // expects { refreshToken } in body
     const { refreshToken } = req.body;
