@@ -1,11 +1,15 @@
-import { Injectable, HttpException } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 
 @Injectable()
-export class LocalAuthGuard extends AuthGuard('local') {
-  handleRequest(err: any, user: any, info: any, context: any, status: any) {
-    if (err || !user) {
-      throw new HttpException(err.message, err.status);
+export class LocalAuthGuard extends AuthGuard("local") {
+  handleRequest(err: any, user: any, info: any) {
+    if (err) {
+      throw err;
+    }
+    if (!user) {
+      // User not found or invalid credentials
+      throw new UnauthorizedException(info?.message || "Invalid credentials");
     }
     return user;
   }

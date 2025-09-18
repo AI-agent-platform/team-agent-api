@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import LakeraGuardConfig from "src/config/lakeraConfig";
+import LakeraGuardConfig from "src/configurations/lakeraConfig";
 
 @Injectable()
 export class ChatService {
