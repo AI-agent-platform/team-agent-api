@@ -19,3 +19,12 @@ google:
     clientId: '209610564722-q116gajb7ei7spl3uglvfqigffk6jcv3.apps.googleusercontent.com'
     clientSecret: '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'
     redirectUri: 'http://localhost:4001/auth/google/callback'
+
+fastAPI:
+    url: 'http://localhost:8000'
+
+email:
+    smtpHost: 'smtp.gmail.com'
+    smtpPort: 465
+    smtpUser: 'buwa26889@gmail.com'
+    smtpPass: 'zgvz nsay xbxt lfbw'
