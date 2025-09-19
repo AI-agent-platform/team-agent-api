@@ -5,6 +5,7 @@ import { AuthModule } from "./api/auth/auth.module";
 import { ChatModule } from "./api/chat/chat.module";
 import { BusinessModule } from "./api/business/business.module";
 import dbConfig from "./configurations/dbConfig";
+import { EmailModule } from "./api/email/email.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import dbConfig from "./configurations/dbConfig";
     AuthModule,
     ChatModule,
     BusinessModule,
+    EmailModule
   ],
   controllers: [],
   providers: [],
