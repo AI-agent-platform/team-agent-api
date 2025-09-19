@@ -1,14 +1,18 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Business } from "./model/business.model";
 import { User } from "../user/model/user.model";
+import { fastAPIConfig } from "../../configurations/fastAPIConfig";
+import axios from "axios";
+import { EmailService } from "../email/email.service";
 
 @Injectable()
 export class BusinessService {
   constructor(
     @InjectModel(Business.name) private businessModel: Model<Business>,
-    @InjectModel(User.name) private userModel: Model<User>
+    @InjectModel(User.name) private userModel: Model<User>,
+    private mailService: EmailService
   ) {}
 
   async create(uid: string, body: any): Promise<Business> {
@@ -16,6 +20,20 @@ export class BusinessService {
     const user = await this.userModel.findById(uid);
     if (!user) throw new NotFoundException("User not found");
 
+    // 🔥 Forward data to FastAPI server
+    try {
+      await axios.post(`${fastAPIConfig.uri}/v1/businesses/`, {
+        company_uuid: uid,
+        company_email: email,
+        business_name: name,
+        contact_number: contact,
+        field: field,
+      });
+    } catch (err) {      
+      throw new HttpException(err.response?.data.detail || err.message.detail, err.response?.status || 500);
+    }
+
+    //save in MongoDB
     const business = new this.businessModel({
       name,
       contact,
@@ -23,48 +41,19 @@ export class BusinessService {
       field,
       ownerUid: uid,
     });
-    await business.save();
 
-    user.businesses.push(business._id);
-    await user.save();
+    await business.save();
+    await this.mailService.sendEmail(
+      email,
+      'Congratulation for creating your first agents with us!',
+      'email-create-business',
+      { name: 'user', orgName: name }
+    );
+    // user.businesses.push(business._id);
+    // await user.save();
 
     return business;
   }
-
-  //   async addFields(businessId: string, fields: string[]) {
-  //     const business = await this.businessModel.findById(businessId);
-  //     if (!business) throw new NotFoundException("Business not found");
-
-  //     business.fields.push(...fields.filter((f) => !business.fields.includes(f)));
-  //     await business.save();
-  //     return { message: "Fields added" };
-  //   }
-
-  //   async addFile(businessId: string, fileName: string, url: string) {
-  //     const business = await this.businessModel.findById(businessId);
-  //     if (!business) throw new NotFoundException("Business not found");
-
-  //     business.files.push({ fileName, url });
-  //     await business.save();
-  //     return { message: "File added" };
-  //   }
-
-  //   async createAgents(businessId: string) {
-  //     const business = await this.businessModel.findById(businessId);
-  //     if (!business) throw new NotFoundException("Business not found");
-
-  //     // Example dummy agent URLs
-  //     business.agentData = {
-  //       adminUrl: `https://admin.example.com/${businessId}`,
-  //       clientUrl: `https://client.example.com/${businessId}`,
-  //     };
-
-  //     await business.save();
-  //     return {
-  //       adminUrl: business.agentData.adminUrl,
-  //       clientUrl: business.agentData.clientUrl,
-  //     };
-  //   }
 
   async findByUser(uid: string) {
     const business = await this.businessModel.findOne({ ownerUid: uid }).lean();
