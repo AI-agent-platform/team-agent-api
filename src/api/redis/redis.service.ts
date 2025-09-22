@@ -1,10 +1,11 @@
 // src/redis/redis.service.ts
-import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
-import { createClient, RedisClientType } from "redis";
+import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from "@nestjs/common";
+import { createClient } from "redis";
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
-  private client: RedisClientType;
+  private client: ReturnType<typeof createClient>;
+  private readonly logger = new Logger(RedisService.name);
 
   async onModuleInit() {
     this.client = createClient({
@@ -12,26 +13,38 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       password: "BK2huYfj7ARGLw1IiKwUWHim8oymvNfR",
       socket: {
         host: "redis-16381.c15.us-east-1-2.ec2.redns.redis-cloud.com",
-        port: 16381,
-        tls: true,   // 👈 force TLS for Redis Cloud
+        port: 16381,       
       },
     });
 
-    this.client.on("error", (err) => console.error("Redis Client Error", err));
-    await this.client.connect();
-    console.log("✅ Connected to Redis Cloud");
+    this.client.on("error", (err) => this.logger.error("Redis Client Error", err));
+
+    // Connect without blocking app startup
+    this.client.connect()
+      .then(() => this.logger.log("✅ Connected to Redis Cloud"))
+      .catch((err) => this.logger.error("❌ Failed to connect to Redis", err));
   }
 
   async onModuleDestroy() {
-    await this.client.disconnect();
+    if (this.client.isOpen) {
+      await this.client.disconnect();
+      this.logger.log("Redis client disconnected");
+    }
   }
 
   async saveMessage(sessionId: string, message: any) {
+    if (!this.client.isOpen) return;
     await this.client.rPush(`chat:${sessionId}`, JSON.stringify(message));
   }
 
   async getMessages(sessionId: string, limit = 20) {
-    const msgs = await this.client.lRange(`chat:${sessionId}`, -limit, -1);
-    return msgs.map((m) => JSON.parse(m));
-  }
+  if (!this.client.isOpen) return [];
+
+  const msgs = await this.client.lRange(`chat:${sessionId}`, -limit, -1);
+
+  return msgs.map((m) => {
+    const str = typeof m === "string" ? m : m.toString(); 
+    return JSON.parse(str);
+  });
+}
 }
