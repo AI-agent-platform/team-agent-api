@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import LakeraGuardConfig from "src/configurations/lakeraConfig";
 import { RedisService } from "../redis/redis.service";
 import { AgentTypes } from "src/constants/agent-types";
+import agentUrlConfig from "src/configurations/agentUrlConfig";
+
 
 @Injectable()
 export class ChatService {
@@ -9,7 +11,7 @@ export class ChatService {
   async passMessageToLLM(
     sessionId: string,
     message: string,
-    company_uuid: string,     
+    company_uuid: string,
     type: AgentTypes,
     top_k?: number,
     file?: File
@@ -45,10 +47,10 @@ export class ChatService {
         role: "user",
         content: message,
       });
-         
+
       if (type === AgentTypes.customer_agent) {
         try {
-          fastApiResp = await fetch("http://localhost:8000/v1/qna", {
+          fastApiResp = await fetch(agentUrlConfig.customerAgent, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -66,23 +68,20 @@ export class ChatService {
         }
       } else {
         try {
-          fastApiResp = await fetch(
-            "http://localhost:8000/v1/businesses/update",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                company_uuid: company_uuid,
-                message: message,
-              }),
-            }
-          );
+          fastApiResp = await fetch(agentUrlConfig.businessAgent, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              company_uuid: company_uuid,
+              message: message,
+            }),
+          });
         } catch (err) {
           console.error("Error calling /v1/businesses/update:", err);
           return { allowed: false, message: " Failed to update business." };
         }
       }
-      const fastApiData = await fastApiResp.json();     
+      const fastApiData = await fastApiResp.json();
 
       // Save bot reply
       await this.redisService.saveMessage(sessionId, {

@@ -4,7 +4,7 @@ server:
     saltSecret: '$2b$10$eT54LKqpPRy4uZrsXrs8O.'
 
 db:
-    uri: mongodb+srv://buwa26889:fyp@cluster0.tmbq7fs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+  uri: mongodb+srv://buwa26889:fyp@cluster0.tmbq7fs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 
 aws:
     region: 'ap-southeast-1'
@@ -28,3 +28,13 @@ email:
     smtpPort: 465
     smtpUser: 'buwa26889@gmail.com'
     smtpPass: 'zgvz nsay xbxt lfbw'
+
+redis:
+    username: "default"
+    password: "BK2huYfj7ARGLw1IiKwUWHim8oymvNfR"
+    host: "redis-16381.c15.us-east-1-2.ec2.redns.redis-cloud.com"
+    port: 16381     
+
+agents:
+    customerAgent: 'http://localhost:8000/v1/qna'
+    businessAgent: 'http://localhost:8000/v1/businesses/update'
