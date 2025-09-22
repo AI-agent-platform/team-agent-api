@@ -30,10 +30,13 @@ export class ChatController {
   async passMessageToLLM(
     @Body() body: IncomingChatMessageDto,
     @UploadedFiles() file: File
-  ): Promise<any> {
+  ): Promise<any> {    
     return this.chatService.passMessageToLLM(
       body.sessionId,
       body.message,
+      body.company_uuid,
+      body.type,
+      body.top_k,
       file
     );
   }
