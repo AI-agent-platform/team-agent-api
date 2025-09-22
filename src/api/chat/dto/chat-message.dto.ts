@@ -1,9 +1,9 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsString, MinLength } from "class-validator";
 
-export class ChatMessageDto {
-//   @IsString()
-//   userId: string;
-
-  @IsString()  
-   message: string;
-} 
+export class IncomingChatMessageDto {
+  @IsString()
+  message: string;
+  @IsString()
+  sessionId: string;
+  file?: File;
+}

@@ -1,9 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import LakeraGuardConfig from "src/configurations/lakeraConfig";
+import { RedisService } from "../redis/redis.service";
 
 @Injectable()
 export class ChatService {
-  async passMessageToLLM(message: string, file?: File): Promise<any> {
+  constructor(private redisService: RedisService) {}
+  async passMessageToLLM(
+    sessionId: string,
+    message: string,
+    file?: File
+  ): Promise<any> {
     try {
       // No file: Perform content moderation via Lakera
       if (!file) {
@@ -28,10 +34,29 @@ export class ChatService {
           };
         }
 
-        return {
-          allowed: true,
-          message: "✅ Your message is safe.",
-        };
+        const pastMessages = await this.redisService.getMessages(sessionId, 10);
+        await this.redisService.saveMessage(sessionId, {
+          role: "user",
+          content: message,
+        });
+
+        const fastApiResp = await fetch("http://localhost:8000/v1/qna", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company_uuid: "alankulama123456",
+            conversation: [...pastMessages, { role: "user", content: message }],
+          }),
+        });
+        const fastApiData = await fastApiResp.json();
+
+        // 5. Save bot reply
+        await this.redisService.saveMessage(sessionId, {
+          role: "bot",
+          content: fastApiData.answer,
+        });
+
+        return { allowed: true, message: fastApiData.answer };
       } else {
         //pass file directly
       }
