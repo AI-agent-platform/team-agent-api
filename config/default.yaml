@@ -31,9 +31,9 @@ email:
 
 redis:
     username: "default"
-    password: "BK2huYfj7ARGLw1IiKwUWHim8oymvNfR"
-    host: "redis-16381.c15.us-east-1-2.ec2.redns.redis-cloud.com"
-    port: 16381     
+    password: "KB2HOlkwVHDGJw9evaBSdsKtDPrCh6iP"
+    host: "redis-13852.c92.us-east-1-3.ec2.redns.redis-cloud.com"
+    port: 13852
 
 agents:
     customerAgent: 'http://localhost:8000/v1/qna'

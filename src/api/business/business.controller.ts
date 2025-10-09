@@ -9,6 +9,7 @@ import {
 } from "@nestjs/common";
 import { BusinessService } from "./business.service";
 import { JwtAuthGuard } from "../auth/jwt-auth.gaurd";
+import { CreateBusinessDto } from "./dto/create-business.dto";
 
 @Controller("business")
 export class BusinessController {
@@ -18,7 +19,7 @@ export class BusinessController {
 
   @Post("create")
   @UseGuards(JwtAuthGuard)
-  async createBusiness(@Request() req, @Body() body: any) {
+  async createBusiness(@Request() req, @Body() body: CreateBusinessDto) {
     const uid = req.user?._id;
     try {
       const business = await this.businessService.create(uid, body);
