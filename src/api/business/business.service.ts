@@ -6,6 +6,7 @@ import { User } from "../user/model/user.model";
 import { fastAPIConfig } from "../../configurations/fastAPIConfig";
 import axios from "axios";
 import { EmailService } from "../email/email.service";
+import { UpdateBusinessDto } from "./dto/create-business.dto";
 
 @Injectable()
 export class BusinessService {
@@ -20,17 +21,20 @@ export class BusinessService {
     const user = await this.userModel.findById(uid);
     if (!user) throw new NotFoundException("User not found");
 
-    // 🔥 Forward data to FastAPI server
+    // Forward data to FastAPI server
     try {
-      await axios.post(`${fastAPIConfig.uri}/v1/businesses/`, {
+      const res = await axios.post(`${fastAPIConfig.uri}/v1/businesses/`, {
         company_uuid: uid,
         company_email: email,
         business_name: name,
         contact_number: contact,
         field: field,
       });
-    } catch (err) {      
-      throw new HttpException(err.response?.data.detail || err.message.detail, err.response?.status || 500);
+    } catch (err) {
+      throw new HttpException(
+        err || err.response?.data.detail || err.message.detail,
+        err.response?.status || 500
+      );
     }
 
     //save in MongoDB
@@ -43,39 +47,82 @@ export class BusinessService {
     });
 
     await business.save();
+    //Send email with endpoints
     await this.mailService.sendEmail(
       email,
-      'Congratulation for creating your first agents with us!',
-      'email-create-business',
-      { name: 'user', orgName: name }
+      "Congratulation for creating your first agents with us!",
+      "email-create-business",
+      { name: "user", orgName: name }
     );
+
+    // TODO: Add business to user's businesses array and save user
     // user.businesses.push(business._id);
     // await user.save();
 
     return business;
   }
 
-  async findByUser(uid: string) {
+  async findBusinessByUserId(uid: string) {
     const business = await this.businessModel.findOne({ ownerUid: uid }).lean();
 
     if (!business) {
-      return { completedSteps: [], data: {} };
+      return { data: {} };
+    }
+    return { data: business };
+  }
+
+  async uploadCompanyData(uid: string, file: any) {
+    const business = await this.businessModel.findOne({ ownerUid: uid });
+    if (!business) throw new NotFoundException("Business not found");
+
+    try {
+      const FormData = require("form-data");
+      const { Readable } = require("stream");
+
+      // Create FormData instance
+      const formData = new FormData();
+
+      // Convert buffer to stream
+      const bufferStream = Readable.from(file.buffer);
+      formData.append("csv_file", bufferStream, file.originalname);
+
+      // Append business_uuid
+      formData.append("business_uuid", uid);
+
+      const FastAPIResponse = await axios.post(
+        `${fastAPIConfig.uri}/v1/documents/ingest/csv/`,
+        formData,
+        {
+          headers: formData.getHeaders(),
+        }
+      );
+
+      return {
+        business_uid: uid,
+        message: "File uploaded successfully",
+        data: FastAPIResponse.data,
+      };
+    } catch (err) {
+      console.error("Upload error:", err);
+      throw new HttpException(
+        err?.response?.data?.detail || err?.message || "Upload failed",
+        err?.response?.status || 500
+      );
+    }
+  }
+
+  async update(uid: string, payload: UpdateBusinessDto) {
+    const business = await this.businessModel.findOne({ ownerUid: uid });
+    if (!business) {
+      throw new NotFoundException("Business not found");
     }
 
-    const completedSteps: number[] = [];
-    if (business.name && business.contact && business.email && business.field) {
-      completedSteps.push(0, 1, 2, 3);
-    }
-    // if (business.fields?.length) {
-    //   completedSteps.push(4);
-    // }
-    // if (business.files?.length) {
-    //   completedSteps.push(5);
-    // }
-    // if (business.agentsCreated) {
-    //   completedSteps.push(5);
-    // }
+    const updatedBusiness = await this.businessModel.findOneAndUpdate(
+      { ownerUid: uid },
+      { $set: payload },
+      { new: true }
+    );
 
-    return { completedSteps, data: business };
+    return updatedBusiness;
   }
 }

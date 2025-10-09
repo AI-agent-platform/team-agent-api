@@ -1,5 +1,12 @@
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
-import { BusinessType } from 'src/constants/business-types.enum';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  IsOptional,
+  IsBoolean,
+} from "class-validator";
+
+import { BusinessType } from "src/constants/business-types.enum";
 
 export class CreateBusinessDto {
   @IsString()
@@ -13,5 +20,30 @@ export class CreateBusinessDto {
 
   @IsString()
   readonly field: BusinessType;
-    
-} 
+}
+
+export class UpdateBusinessDto {
+  @IsString()
+  @IsOptional()
+  readonly name: string;
+
+  @IsString()
+  @IsOptional()
+  readonly contact: string;
+
+  @IsEmail()
+  @IsOptional()
+  readonly email: string;
+
+  @IsString()
+  @IsOptional()
+  readonly field: BusinessType;
+
+  @IsBoolean()
+  @IsOptional()
+  csvUploaded: boolean;
+}
+
+export class UploadFileDto {
+  file: File;
+}
