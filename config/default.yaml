@@ -21,7 +21,7 @@ google:
     redirectUri: 'http://localhost:4001/auth/google/callback'
 
 fastAPI:
-    url: 'http://localhost:8000'
+    url: 'https://fastapi-rag-service-iuxrsvfyvq-uc.a.run.app'
 
 email:
     smtpHost: 'smtp.gmail.com'
@@ -36,5 +36,5 @@ redis:
     port: 13852
 
 agents:
-    customerAgent: 'http://localhost:8000/v1/qna'
-    businessAgent: 'http://localhost:8000/v1/businesses/update'
+    customerAgent: 'https://fastapi-rag-service-iuxrsvfyvq-uc.a.run.app/v1/qna'
+    businessAgent: 'https://fastapi-rag-service-iuxrsvfyvq-uc.a.run.app/v1/businesses/update'
