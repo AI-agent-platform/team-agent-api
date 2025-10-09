@@ -16,6 +16,9 @@ export class Business extends Document {
   @Prop({ required: true })
   ownerUid: string;
 
+  @Prop({ required: false })
+  csvUploaded: boolean;
+
   // @Prop({ type: [String], default: [] })
   // fields: string[];
 
