@@ -1,9 +1,21 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsString, MinLength } from "class-validator";
+import { Agent } from "http";
+import { AgentTypes } from "src/constants/agent-types";
 
-export class ChatMessageDto {
-//   @IsString()
-//   userId: string;
+export class IncomingChatMessageDto {
+  @IsString()
+  message: string;
+  @IsString()
+  sessionId: string;
 
-  @IsString()  
-   message: string;
-} 
+  @IsString()
+  company_uuid: string;
+
+  @IsString()
+  top_k: number;
+
+  @IsString()
+  type?: AgentTypes;
+
+  file?: File;
+}

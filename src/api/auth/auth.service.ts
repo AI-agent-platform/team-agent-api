@@ -13,6 +13,7 @@ import { JwtService } from "@nestjs/jwt";
 import { UserService } from "../user/user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { OAuth2Client } from "google-auth-library";
+import { EmailService } from "../email/email.service";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -21,7 +22,8 @@ export class AuthService {
   constructor(
     @Inject(forwardRef(() => UserService))
     private UserService: UserService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private mailService: EmailService
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -40,7 +42,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async loginUser(user: any) {   
+  async loginUser(user: any) {
     const accessToken = await this.generateJwtToken(user);
     await this.UserService.findOneAndUpdate(
       { email: user.email },
@@ -81,6 +83,12 @@ export class AuthService {
     if (isUser)
       throw new HttpException("User Already Exist", HttpStatus.CONFLICT);
     const user = await this.UserService.create(newUser);
+    await this.mailService.sendEmail(
+      newUser.email,
+      "Welcome!",
+      "email-sign-up-user",
+      { subject: "Welcome to our platform!" }
+    );
     return { message: "Registration successful", user };
   }
 

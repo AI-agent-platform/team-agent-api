@@ -4,7 +4,7 @@ server:
     saltSecret: '$2b$10$eT54LKqpPRy4uZrsXrs8O.'
 
 db:
-    uri: mongodb+srv://buwa26889:fyp@cluster0.tmbq7fs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+  uri: mongodb+srv://buwa26889:fyp@cluster0.tmbq7fs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 
 aws:
     region: 'ap-southeast-1'
@@ -19,3 +19,22 @@ google:
     clientId: '209610564722-q116gajb7ei7spl3uglvfqigffk6jcv3.apps.googleusercontent.com'
     clientSecret: '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'
     redirectUri: 'http://localhost:4001/auth/google/callback'
+
+fastAPI:
+    url: 'http://localhost:8000'
+
+email:
+    smtpHost: 'smtp.gmail.com'
+    smtpPort: 465
+    smtpUser: 'buwa26889@gmail.com'
+    smtpPass: 'zgvz nsay xbxt lfbw'
+
+redis:
+    username: "default"
+    password: "KB2HOlkwVHDGJw9evaBSdsKtDPrCh6iP"
+    host: "redis-13852.c92.us-east-1-3.ec2.redns.redis-cloud.com"
+    port: 13852
+
+agents:
+    customerAgent: 'http://localhost:8000/v1/qna'
+    businessAgent: 'http://localhost:8000/v1/businesses/update'

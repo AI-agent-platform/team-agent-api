@@ -1,45 +1,103 @@
 import { Injectable } from "@nestjs/common";
 import LakeraGuardConfig from "src/configurations/lakeraConfig";
+import { RedisService } from "../redis/redis.service";
+import { AgentTypes } from "src/constants/agent-types";
+import agentUrlConfig from "src/configurations/agentUrlConfig";
+
 
 @Injectable()
 export class ChatService {
-  async passMessageToLLM(message: string, file?: File): Promise<any> {
+  constructor(private redisService: RedisService) {}
+  async passMessageToLLM(
+    sessionId: string,
+    message: string,
+    company_uuid: string,
+    type: AgentTypes,
+    top_k?: number,
+    file?: File
+  ): Promise<any> {
     try {
+      let fastApiResp = null;
+
       // No file: Perform content moderation via Lakera
-      if (!file) {
-        const response = await fetch("https://api.lakera.ai/v2/guard", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${LakeraGuardConfig.apiKey}`,
-          },
-          body: JSON.stringify({
-            messages: [{ role: "user", content: message }],
-          }),
-        });
+      // if (!file) {
+      // const response = await fetch("https://api.lakera.ai/v2/guard", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${LakeraGuardConfig.apiKey}`,
+      //   },
+      //   body: JSON.stringify({
+      //     messages: [{ role: "user", content: message }],
+      //   }),
+      // });
 
-        const data = await response.json();
+      // const data = await response.json();
 
-        if (data.flagged) {
+      // if (data.flagged) {
+      //   return {
+      //     allowed: false,
+      //     message:
+      //       "Your message has been flagged as harmful or inappropriate.",
+      //   };
+      // }
+      const pastMessages = await this.redisService.getMessages(sessionId, 10);
+
+      await this.redisService.saveMessage(sessionId, {
+        role: "user",
+        content: message,
+      });
+
+      if (type === AgentTypes.customer_agent) {
+        try {
+          fastApiResp = await fetch(agentUrlConfig.customerAgent, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              company_uuid: company_uuid,
+              question: message,
+              top_k: 5,
+            }),
+          });
+        } catch (err) {
+          console.error("Error calling /v1/qna:", err);
           return {
             allowed: false,
-            message:
-              "🚫 Your message has been flagged as harmful or inappropriate.",
+            message: "Failed to contact QnA service.",
           };
         }
-
-        return {
-          allowed: true,
-          message: "✅ Your message is safe.",
-        };
       } else {
-        //pass file directly
+        try {
+          fastApiResp = await fetch(agentUrlConfig.businessAgent, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              company_uuid: company_uuid,
+              message: message,
+            }),
+          });
+        } catch (err) {
+          console.error("Error calling /v1/businesses/update:", err);
+          return { allowed: false, message: " Failed to update business." };
+        }
       }
+      const fastApiData = await fastApiResp.json();
+
+      // Save bot reply
+      await this.redisService.saveMessage(sessionId, {
+        role: "bot",
+        content: fastApiData.answer,
+      });
+
+      return { allowed: true, answer: fastApiData.answer };
+      // } else {
+      //   //pass file directly
+      // }
     } catch (error) {
       console.error("Lakera API Error:", error);
       return {
         allowed: false,
-        message: "❌ Error contacting moderation service.",
+        message: "Error contacting moderation service.",
       };
     }
   }
