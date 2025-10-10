@@ -4,21 +4,23 @@ import * as nodemailer from "nodemailer";
 import * as handlebars from "handlebars";
 import * as path from "path";
 import { readFile } from "fs/promises";
-import emailConfig from "src/configurations/emailConfig";
+
+import * as dotenv from "dotenv";
+dotenv.config();
 
 @Injectable()
 export class EmailService {
   private transporter;
   private readonly logger = new Logger(EmailService.name);
 
-  constructor() {
+  constructor() {   
     this.transporter = nodemailer.createTransport({
-      host: emailConfig.smtpHost,
-      port: emailConfig.smtpPort,
+      host: process.env.EMAIL_SMTP_HOST,
+      port: process.env.EMAIL_SMTP_PORT,
       secure: true,
       auth: {
-        user: emailConfig.smtpUser,
-        pass: emailConfig.smtpPass,
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
   }
@@ -46,7 +48,7 @@ export class EmailService {
       const compiledTemplate = handlebars.compile(templateSource);
       const html = compiledTemplate(context);
 
-      await this.transporter.sendMail({
+      await this.transporter.sendMail({        
         from: process.env.EMAIL_USER,
         to,
         subject,

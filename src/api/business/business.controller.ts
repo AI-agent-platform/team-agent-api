@@ -6,10 +6,19 @@ import {
   UseGuards,
   Request,
   Get,
+  UseInterceptors,
+  UploadedFile,
+  Put,
 } from "@nestjs/common";
 import { BusinessService } from "./business.service";
 import { JwtAuthGuard } from "../auth/jwt-auth.gaurd";
-import { CreateBusinessDto } from "./dto/create-business.dto";
+import {
+  CreateBusinessDto,
+  UpdateBusinessDto,
+  UploadFileDto,
+} from "./dto/create-business.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { File as MulterFile } from "multer";
 
 @Controller("business")
 export class BusinessController {
@@ -35,27 +44,20 @@ export class BusinessController {
   async getMyBusiness(@Request() req) {
     const uid = req.user?._id;
 
-    return this.businessService.findByUser(uid);
+    return this.businessService.findBusinessByUserId(uid);
   }
 
-//   @Post("fields")
-//   async selectFields(@Body() body: { businessId: string; fields: string[] }) {
-//     return this.businessService.addFields(body.businessId, body.fields);
-//   }
+  @Put()
+  @UseGuards(JwtAuthGuard)
+  async updateBusiness(@Request() req, @Body() body: UpdateBusinessDto) {
+    const uid = req.user?._id;
+    return this.businessService.update(uid, body);
+  }
 
-//   @Post("upload-file")
-//   async uploadFile(
-//     @Body() body: { businessId: string; fileName: string; url: string }
-//   ) {
-//     return this.businessService.addFile(
-//       body.businessId,
-//       body.fileName,
-//       body.url
-//     );
-//   }
-
-//   @Post("create-agents")
-//   async createAgents(@Body() body: { businessId: string }) {
-//     return this.businessService.createAgents(body.businessId);
-//   }
+  @Post("upload-file")
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadFile(@Request() req, @UploadedFile() file: MulterFile) {
+    return this.businessService.uploadCompanyData(req.user?._id, file);
+  }
 }

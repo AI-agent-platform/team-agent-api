@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import LakeraGuardConfig from "src/configurations/lakeraConfig";
 import { RedisService } from "../redis/redis.service";
 import { AgentTypes } from "src/constants/agent-types";
-import agentUrlConfig from "src/configurations/agentUrlConfig";
 
+import * as dotenv from "dotenv";
+dotenv.config();
 
 @Injectable()
 export class ChatService {
@@ -25,7 +25,7 @@ export class ChatService {
       //   method: "POST",
       //   headers: {
       //     "Content-Type": "application/json",
-      //     Authorization: `Bearer ${LakeraGuardConfig.apiKey}`,
+      //     Authorization: `Bearer ${process.env.LAKERA_GUARD_API_KEY}`,
       //   },
       //   body: JSON.stringify({
       //     messages: [{ role: "user", content: message }],
@@ -41,8 +41,8 @@ export class ChatService {
       //       "Your message has been flagged as harmful or inappropriate.",
       //   };
       // }
-      const pastMessages = await this.redisService.getMessages(sessionId, 10);
-
+      const history = await this.redisService.getMessages(sessionId, 10);
+     
       await this.redisService.saveMessage(sessionId, {
         role: "user",
         content: message,
@@ -50,7 +50,7 @@ export class ChatService {
 
       if (type === AgentTypes.customer_agent) {
         try {
-          fastApiResp = await fetch(agentUrlConfig.customerAgent, {
+          fastApiResp = await fetch(process.env.AGENT_CUSTOMER_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -59,6 +59,7 @@ export class ChatService {
               top_k: 5,
             }),
           });
+        
         } catch (err) {
           console.error("Error calling /v1/qna:", err);
           return {
@@ -68,7 +69,7 @@ export class ChatService {
         }
       } else {
         try {
-          fastApiResp = await fetch(agentUrlConfig.businessAgent, {
+          fastApiResp = await fetch(process.env.AGENT_BUSINESS_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -76,6 +77,7 @@ export class ChatService {
               message: message,
             }),
           });
+         
         } catch (err) {
           console.error("Error calling /v1/businesses/update:", err);
           return { allowed: false, message: " Failed to update business." };
