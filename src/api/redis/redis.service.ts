@@ -1,7 +1,14 @@
 // src/redis/redis.service.ts
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from "@nestjs/common";
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from "@nestjs/common";
 import { createClient } from "redis";
-import redisConfig from "src/configurations/redisConfig";
+
+import * as dotenv from "dotenv";
+dotenv.config();
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
@@ -10,18 +17,21 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     this.client = createClient({
-      username: redisConfig.userName,
-      password: redisConfig.password,
+      username: process.env.REDIS_USERNAME,
+      password: process.env.REDIS_PASSWORD,
       socket: {
-        host: redisConfig.host, 
-        port: redisConfig.port,       
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT),
       },
     });
 
-    this.client.on("error", (err) => this.logger.error("Redis Client Error", err));
+    this.client.on("error", (err) =>
+      this.logger.error("Redis Client Error", err)
+    );
 
     // Connect without blocking app startup
-    this.client.connect()
+    this.client
+      .connect()
       .then(() => this.logger.log("✅ Connected to Redis Cloud"))
       .catch((err) => this.logger.error("❌ Failed to connect to Redis", err));
   }
@@ -39,13 +49,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async getMessages(sessionId: string, limit = 20) {
-  if (!this.client.isOpen) return [];
+    if (!this.client.isOpen) return [];
 
-  const msgs = await this.client.lRange(`chat:${sessionId}`, -limit, -1);
+    const msgs = await this.client.lRange(`chat:${sessionId}`, -limit, -1);
 
-  return msgs.map((m) => {
-    const str = typeof m === "string" ? m : m.toString(); 
-    return JSON.parse(str);
-  });
-}
+    return msgs.map((m) => {
+      const str = typeof m === "string" ? m : m.toString();
+      return JSON.parse(str);
+    });
+  }
 }

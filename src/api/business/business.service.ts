@@ -3,14 +3,16 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Business } from "./model/business.model";
 import { User } from "../user/model/user.model";
-import { fastAPIConfig } from "../../configurations/fastAPIConfig";
 import axios from "axios";
 import { EmailService } from "../email/email.service";
 import { UpdateBusinessDto } from "./dto/create-business.dto";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 @Injectable()
 export class BusinessService {
   constructor(
+    
     @InjectModel(Business.name) private businessModel: Model<Business>,
     @InjectModel(User.name) private userModel: Model<User>,
     private mailService: EmailService
@@ -23,7 +25,7 @@ export class BusinessService {
 
     // Forward data to FastAPI server
     try {
-      const res = await axios.post(`${fastAPIConfig.uri}/v1/businesses/`, {
+      const res = await axios.post(`${process.env.FASTAPI_URL}/v1/businesses/`, {
         company_uuid: uid,
         company_email: email,
         business_name: name,
@@ -37,7 +39,7 @@ export class BusinessService {
       );
     }
 
-    //save in MongoDB
+    // //save in MongoDB
     const business = new this.businessModel({
       name,
       contact,
@@ -52,7 +54,11 @@ export class BusinessService {
       email,
       "Congratulation for creating your first agents with us!",
       "email-create-business",
-      { name: "user", orgName: name }
+      {
+        businessAgent: `${process.env.AGENT_BUSINESS_URL}/${uid}`,
+        customerAgent: `${process.env.AGENT_CUSTOMER_URL}/${uid}`,
+        BusinessName: name,
+      }
     );
 
     // TODO: Add business to user's businesses array and save user
@@ -90,7 +96,7 @@ export class BusinessService {
       formData.append("business_uuid", uid);
 
       const FastAPIResponse = await axios.post(
-        `${fastAPIConfig.uri}/v1/documents/ingest/csv/`,
+        `${process.env.FASTAPI_URL}/v1/documents/ingest/csv/`,
         formData,
         {
           headers: formData.getHeaders(),
