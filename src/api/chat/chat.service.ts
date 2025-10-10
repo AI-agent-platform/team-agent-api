@@ -4,7 +4,6 @@ import { RedisService } from "../redis/redis.service";
 import { AgentTypes } from "src/constants/agent-types";
 import agentUrlConfig from "src/configurations/agentUrlConfig";
 
-
 @Injectable()
 export class ChatService {
   constructor(private redisService: RedisService) {}
@@ -41,8 +40,8 @@ export class ChatService {
       //       "Your message has been flagged as harmful or inappropriate.",
       //   };
       // }
-      const pastMessages = await this.redisService.getMessages(sessionId, 10);
-
+      const history = await this.redisService.getMessages(sessionId, 10);
+     
       await this.redisService.saveMessage(sessionId, {
         role: "user",
         content: message,
@@ -59,6 +58,7 @@ export class ChatService {
               top_k: 5,
             }),
           });
+        
         } catch (err) {
           console.error("Error calling /v1/qna:", err);
           return {
@@ -76,6 +76,7 @@ export class ChatService {
               message: message,
             }),
           });
+         
         } catch (err) {
           console.error("Error calling /v1/businesses/update:", err);
           return { allowed: false, message: " Failed to update business." };
