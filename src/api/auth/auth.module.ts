@@ -8,6 +8,7 @@ import { LocalStrategy } from "./localStrategy";
 import { UserModule } from "../user/user.module";
 import { GoogleStrategy } from "../business/google.strategy";
 import { EmailService } from "../email/email.service";
+import { EmailModule } from "../email/email.module";
 
 @Module({
   imports: [
@@ -17,10 +18,11 @@ import { EmailService } from "../email/email.service";
     }),
     forwardRef(() => UserModule),
     PassportModule,
+    EmailModule
   ],
 
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy, GoogleStrategy, EmailService],
+  providers: [AuthService, JwtStrategy, LocalStrategy, GoogleStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}
