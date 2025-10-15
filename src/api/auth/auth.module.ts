@@ -13,7 +13,7 @@ import { EmailModule } from "../email/email.module";
 @Module({
   imports: [
     JwtModule.register({
-      secret: "JWT_SECRET",
+      secret: process.env.JWT_SECRET || "JWT_SECRET",
       signOptions: { expiresIn: "3000s" },
     }),
     forwardRef(() => UserModule),

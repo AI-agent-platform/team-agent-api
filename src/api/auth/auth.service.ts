@@ -44,11 +44,9 @@ export class AuthService {
 
   async loginUser(user: any) {
     const accessToken = await this.generateJwtToken(user);
-    await this.UserService.findOneAndUpdate(
-      { email: user.email },
-      { accessToken }
-    );
-    return user;
+    await this.UserService.findOneAndUpdate({ email: user.email }, { accessToken });
+    // return token and user so client receives the JWT
+    return { access_token: accessToken, user };
   }
 
   async getHashedPassword(password: string): Promise<any> {
