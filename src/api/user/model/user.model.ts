@@ -30,7 +30,7 @@ export class User {
   @Prop({ select: false })
   passwordResetExpires?: Date;
 
-  @Prop({ default: false })
+  @Prop({ default: true })
   accessToken: string;
   
   @Prop({ type: [{ type: Types.ObjectId, ref: "Business" }] })

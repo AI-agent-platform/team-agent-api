@@ -48,7 +48,7 @@ export class AuthService {
       { email: user.email },
       { accessToken }
     );
-    return { access_token: accessToken, user };
+    return user;
   }
 
   async getHashedPassword(password: string): Promise<any> {
