@@ -16,7 +16,7 @@ export class MetaService {
 
       if (!message) return { status: "ignored" };
 
-      const from = message.from; // customer phone number
+      const from = message.from;
       const text = message.text?.body;
 
       console.log(`📩 Message from ${from}: ${text}`);
@@ -24,7 +24,7 @@ export class MetaService {
       const aiResponse = await this.chatService.passMessageToLLM(
         from,
         text,
-        "company_uuid_here", 
+        "68f6070333a8c53944475b3b", //TODO: Replace with dynamic business ID
         AgentTypes.customer_agent
       );
 

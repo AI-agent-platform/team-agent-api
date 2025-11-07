@@ -69,14 +69,17 @@ export class ChatService {
         }
       } else {
         try {
+          
           fastApiResp = await fetch(process.env.AGENT_BUSINESS_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               company_uuid: company_uuid,
-              message: message,
+              prompt: message,
             }),
           });
+          console.log("🚀 ~ ChatService ~ passMessageToLLM ~ fastApiResp:", fastApiResp)
+          
          
         } catch (err) {
           console.error("Error calling /v1/businesses/update:", err);
