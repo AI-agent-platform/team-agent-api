@@ -6,6 +6,7 @@ import { ChatModule } from "./api/chat/chat.module";
 import { BusinessModule } from "./api/business/business.module";
 import { EmailModule } from "./api/email/email.module";
 import * as dotenv from "dotenv";
+import { MetaModule } from "./api/meta/meta.module";
 dotenv.config();
 
 @Module({
@@ -16,6 +17,7 @@ dotenv.config();
     ChatModule,
     BusinessModule,
     EmailModule,
+    MetaModule
   ],
   controllers: [],
   providers: [],
