@@ -18,7 +18,7 @@ import {
   UploadFileDto,
 } from "./dto/create-business.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { File as MulterFile } from "multer";
+import { Express } from "express";
 
 @Controller("business")
 export class BusinessController {
@@ -57,7 +57,7 @@ export class BusinessController {
   @Post("upload-file")
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor("file"))
-  async uploadFile(@Request() req, @UploadedFile() file: MulterFile) {
+  async uploadFile(@Request() req, @UploadedFile() file: Express.Multer.File) {
     return this.businessService.uploadCompanyData(req.user?._id, file);
   }
 }
