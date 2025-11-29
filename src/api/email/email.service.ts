@@ -13,7 +13,7 @@ export class EmailService {
   private transporter;
   private readonly logger = new Logger(EmailService.name);
 
-  constructor() {   
+  constructor() {
     this.transporter = nodemailer.createTransport({
       host: process.env.EMAIL_SMTP_HOST,
       port: process.env.EMAIL_SMTP_PORT,
@@ -26,14 +26,7 @@ export class EmailService {
   }
 
   private getTemplatePath(templateName: string): string {
-    return path.join(
-      process.cwd(),
-      "src",
-      "api",
-      "email",
-      "templates",
-      `${templateName}.html`
-    );
+    return path.join(__dirname, "templates", `${templateName}.html`);
   }
 
   async sendEmail(
@@ -48,7 +41,7 @@ export class EmailService {
       const compiledTemplate = handlebars.compile(templateSource);
       const html = compiledTemplate(context);
 
-      await this.transporter.sendMail({        
+      await this.transporter.sendMail({
         from: process.env.EMAIL_USER,
         to,
         subject,
