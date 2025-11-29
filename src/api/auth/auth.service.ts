@@ -87,7 +87,7 @@ export class AuthService {
       "email-sign-up-user",
       { subject: "Welcome to our platform!" }
     );
-    return { message: "Registration successful", user };
+    return { message: "Registration successfully Completed", user };
   }
 
   async refreshAccessToken(refreshToken: string): Promise<any> {
