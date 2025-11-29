@@ -29,7 +29,7 @@ export class ChatController {
   @UseInterceptors(AnyFilesInterceptor())
   async passMessageToLLM(
     @Body() body: IncomingChatMessageDto,
-    @UploadedFiles() file: File
+    @UploadedFiles() file: Express.Multer.File
   ): Promise<any> {    
     return this.chatService.passMessageToLLM(
       body.sessionId,

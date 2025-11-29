@@ -14,7 +14,7 @@ export class ChatService {
     company_uuid: string,
     type: AgentTypes,
     top_k?: number,
-    file?: File
+    file?: Express.Multer.File
   ): Promise<any> {
     try {
       let fastApiResp = null;
