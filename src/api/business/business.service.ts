@@ -61,7 +61,7 @@ export class BusinessService {
     //Send email with endpoints
     await this.mailService.sendEmail(
       email,
-      "Congratulation for creating your first agents with us!",
+      "Congratulations for creating your first agents with us!",
       "email-create-business",
       {
         businessAgent: `${process.env.AGENT_BUSINESS_URL}/${uid}`,
