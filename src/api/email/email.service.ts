@@ -3,6 +3,7 @@ import * as nodemailer from "nodemailer";
 import * as handlebars from "handlebars";
 import * as path from "path";
 import { readFile } from "fs/promises";
+import { existsSync } from "fs";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -25,26 +26,32 @@ export class EmailService {
   }
 
   private getTemplatePath(templateName: string): string {
-    return path.join(__dirname, "templates", `${templateName}.html`);
+    const compiledPath = path.join(__dirname, "templates", `${templateName}.html`);
+    if (existsSync(compiledPath)) return compiledPath;
+    const srcPath = path.join(process.cwd(), "src", "api", "email", "templates", `${templateName}.html`);
+    if (existsSync(srcPath)) return srcPath;  
+    return compiledPath;
   }
 
   async sendEmail(
     to: string,
     subject: string,
     template: string,
-    context: Record<string, any> = {}
+    context: Record<string, any> = {},
+    attachments: any[] = []
   ): Promise<void> {
     try {
       const templatePath = this.getTemplatePath(template);
       const templateSource = await readFile(templatePath, "utf-8");
       const compiledTemplate = handlebars.compile(templateSource);
-      const html = compiledTemplate(context);
-
+      const html = compiledTemplate(context);     
+   
       await this.transporter.sendMail({
         from: process.env.EMAIL_USER,
         to,
         subject,
         html,
+        attachments
       });
 
       console.log(`Email sent to ${to} with subject "${subject}"`);

@@ -7,12 +7,12 @@ import axios from "axios";
 import { EmailService } from "../email/email.service";
 import { UpdateBusinessDto } from "./dto/create-business.dto";
 import * as dotenv from "dotenv";
+import { loadPdfAttachment } from "src/helpers/generate-pdf-buffer";
 dotenv.config();
 
 @Injectable()
 export class BusinessService {
   constructor(
-    
     @InjectModel(Business.name) private businessModel: Model<Business>,
     @InjectModel(User.name) private userModel: Model<User>,
     private mailService: EmailService
@@ -25,13 +25,16 @@ export class BusinessService {
 
     // Forward data to FastAPI server
     try {
-      const res = await axios.post(`${process.env.FASTAPI_URL}/v1/businesses/`, {
-        company_uuid: uid,
-        company_email: email,
-        business_name: name,
-        contact_number: contact,
-        field: field,
-      });
+      const res = await axios.post(
+        `${process.env.FASTAPI_URL}/v1/businesses/`,
+        {
+          company_uuid: uid,
+          company_email: email,
+          business_name: name,
+          contact_number: contact,
+          field: field,
+        }
+      );
     } catch (err) {
       throw new HttpException(
         err || err.response?.data.detail || err.message.detail,
@@ -39,7 +42,6 @@ export class BusinessService {
       );
     }
 
-    // //save in MongoDB
     const business = new this.businessModel({
       name,
       contact,
@@ -49,6 +51,13 @@ export class BusinessService {
     });
 
     await business.save();
+
+    //prepare email attachment
+    const attachments = [];
+    const pdfAttachment = await loadPdfAttachment("welcome.pdf");
+    if (pdfAttachment) {
+      attachments.push(pdfAttachment);
+    }
     //Send email with endpoints
     await this.mailService.sendEmail(
       email,
