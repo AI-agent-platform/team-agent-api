@@ -47,7 +47,7 @@ export class EmailService {
       const html = compiledTemplate(context);     
    
       await this.transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: '"Agent AI" <webservicespkd@gmail.com>',
         to,
         subject,
         html,
