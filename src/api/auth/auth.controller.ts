@@ -55,6 +55,17 @@ export class AuthController {
     return this.authService.register(createUserDto);
   }
 
+  @Post("forgot-password")
+  async forgotPassword(@Body('email') email: string): Promise<any> {
+    return this.authService.forgotPassword(email);
+  }
+
+  @Post("reset-password")
+  async resetPassword(@Body() body: { token: string; password: string }): Promise<any> {
+    const { token, password } = body;
+    return this.authService.resetPassword(token, password);
+  }
+
   @Post("refresh")
   async refresh(@Request() req): Promise<any> {
     // expects { refreshToken } in body

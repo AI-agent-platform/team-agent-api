@@ -14,6 +14,7 @@ import { UserService } from "../user/user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { OAuth2Client } from "google-auth-library";
 import { EmailService } from "../email/email.service";
+import * as crypto from "crypto";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -44,9 +45,70 @@ export class AuthService {
 
   async loginUser(user: any) {
     const accessToken = await this.generateJwtToken(user);
-    await this.UserService.findOneAndUpdate({ email: user.email }, { accessToken });
+    await this.UserService.findOneAndUpdate(
+      { email: user.email },
+      { accessToken }
+    );
     // return token and user so client receives the JWT
     return { access_token: accessToken, user };
+  }
+
+  async forgotPassword(email: string): Promise<any> {
+    const user = await this.UserService.findOne({ email });
+    if (!user) throw new NotFoundException("Email does not exist");
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await this.UserService.findOneAndUpdate(
+      { email },
+      {
+        passwordResetToken: token,
+        passwordResetOTP: otp,
+        passwordResetExpires: expires,
+      }
+    );
+
+    // Reset link
+    const resetLink = `${
+      process.env.FRONTEND_URL || "http://localhost:3000"
+    }/reset-password?token=${token}`;
+
+    await this.mailService.sendEmail(
+      email,
+      "Reset your password",
+      "email-forgot-password-verification",
+      { otp: otp, resetLink: resetLink, useName: user.firstName }
+    );
+
+    return { message: "Password reset email sent" };
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<any> {
+    const user = await this.UserService.findOne({ passwordResetToken: token });
+    if (!user || !user.passwordResetExpires) {
+      throw new UnauthorizedException("Invalid or expired token");
+    }
+    const expires = new Date(user.passwordResetExpires);
+    if (expires.getTime() < Date.now()) {
+      throw new UnauthorizedException("Token has expired");
+    }
+
+    const hashed = await this.getHashedPassword(newPassword);
+
+    await this.UserService.findOneAndUpdate(
+      { email: user.email },
+      {
+        password: hashed,
+        passwordResetToken: null,
+        passwordResetOTP: null,
+        passwordResetExpires: null,
+      }
+    );
+
+    return { message: "Password has been reset successfully" };
   }
 
   async getHashedPassword(password: string): Promise<any> {

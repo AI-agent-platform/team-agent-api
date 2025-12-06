@@ -28,6 +28,9 @@ export class User {
   passwordResetToken?: string;
 
   @Prop({ select: false })
+  passwordResetOTP?: string;
+
+  @Prop({ select: false })
   passwordResetExpires?: Date;
 
   @Prop({ default: true })
