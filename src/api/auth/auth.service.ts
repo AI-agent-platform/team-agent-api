@@ -73,7 +73,7 @@ export class AuthService {
 
     // Reset link
     const resetLink = `${
-      process.env.FRONTEND_URL || "http://localhost:3000"
+      process.env.WEB_URL || "http://localhost:3000"
     }/reset-password?token=${token}`;
 
     await this.mailService.sendEmail(
