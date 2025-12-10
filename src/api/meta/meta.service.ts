@@ -24,7 +24,7 @@ export class MetaService {
       const aiResponse = await this.chatService.passMessageToLLM(
         from,
         text,
-        "68f6070333a8c53944475b3b", //TODO: Replace with dynamic business ID
+        "6925cde76bd5de0894c36f39", //TODO: Replace with dynamic business ID
         AgentTypes.customer_agent
       );
 
@@ -38,25 +38,42 @@ export class MetaService {
   }
 
   private async sendWhatsAppMessage(to: string, message: string) {
+    if (!message) {
+      console.warn(`⚠️ No message to send to ${to}`);
+      return;
+    }
+
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
     const token = process.env.WHATSAPP_ACCESS_TOKEN;
 
-    await axios.post(
-      `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`,
-      {
-        messaging_product: "whatsapp",
-        to,
-        type: "text",
-        text: { body: message },
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    if (!phoneNumberId || !token) {
+      console.error("❌ WhatsApp Phone Number ID or Access Token not set");
+      return;
+    }
 
-    console.log(`✅ Sent reply to ${to}: ${message}`);
+    try {
+      await axios.post(
+        `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`,
+        {
+          messaging_product: "whatsapp",
+          to,
+          type: "text",
+          text: { body: message },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(`✅ Sent reply to ${to}: ${message}`);
+    } catch (err: any) {
+      console.error(
+        "❌ Error sending WhatsApp message:",
+        err.response?.data || err.message
+      );
+    }
   }
 }
