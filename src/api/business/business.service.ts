@@ -35,6 +35,7 @@ export class BusinessService {
           field: field,
         }
       );
+      console.log("🚀 ~ BusinessService ~ create ~ res:", res);
     } catch (err) {
       throw new HttpException(
         err || err.response?.data.detail || err.message.detail,
@@ -67,7 +68,8 @@ export class BusinessService {
         businessAgent: `${process.env.AGENT_BUSINESS_URL}/${uid}`,
         customerAgent: `${process.env.AGENT_CUSTOMER_URL}/${uid}`,
         BusinessName: name,
-      }
+      },
+      attachments
     );
 
     // TODO: Add business to user's businesses array and save user

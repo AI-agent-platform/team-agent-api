@@ -22,7 +22,7 @@ import { EmailModule } from "../email/email.module";
   ],
 
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy, GoogleStrategy],
+  providers: [AuthService, JwtStrategy, LocalStrategy, GoogleStrategy, EmailService],
   exports: [AuthService],
 })
 export class AuthModule {}

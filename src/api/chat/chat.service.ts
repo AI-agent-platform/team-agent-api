@@ -19,30 +19,30 @@ export class ChatService {
     try {
       let fastApiResp = null;
 
-      // No file: Perform content moderation via Lakera
-      // if (!file) {
-      // const response = await fetch("https://api.lakera.ai/v2/guard", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: `Bearer ${process.env.LAKERA_GUARD_API_KEY}`,
-      //   },
-      //   body: JSON.stringify({
-      //     messages: [{ role: "user", content: message }],
-      //   }),
-      // });
+      //No file: Perform content moderation via Lakera
 
-      // const data = await response.json();
+      const response = await fetch("https://api.lakera.ai/v2/guard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.LAKERA_GUARD_API_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: message }],
+        }),
+      });
 
-      // if (data.flagged) {
-      //   return {
-      //     allowed: false,
-      //     message:
-      //       "Your message has been flagged as harmful or inappropriate.",
-      //   };
-      // }
+      const data = await response.json();
+
+      if (data.flagged) {
+        console.log("🚀 ~ ChatService ~ passMessageToLLM ~ flagged:")
+        return {
+          allowed: false,
+          message: "Your message has been flagged as harmful or inappropriate.",
+        };
+      }
       const history = await this.redisService.getMessages(sessionId, 10);
-     
+      
       await this.redisService.saveMessage(sessionId, {
         role: "user",
         content: message,
@@ -59,7 +59,6 @@ export class ChatService {
               top_k: 5,
             }),
           });
-        
         } catch (err) {
           console.error("Error calling /v1/qna:", err);
           return {
@@ -69,7 +68,6 @@ export class ChatService {
         }
       } else {
         try {
-          
           fastApiResp = await fetch(process.env.AGENT_BUSINESS_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -78,15 +76,14 @@ export class ChatService {
               prompt: message,
             }),
           });
-          console.log("🚀 ~ ChatService ~ passMessageToLLM ~ fastApiResp:", fastApiResp)
-          
-         
+        
         } catch (err) {
           console.error("Error calling /v1/businesses/update:", err);
           return { allowed: false, message: " Failed to update business." };
         }
       }
       const fastApiData = await fastApiResp.json();
+      console.log("🚀 ~ ChatService ~ passMessageToLLM ~ fastApiData:", fastApiData)
 
       // Save bot reply
       await this.redisService.saveMessage(sessionId, {
